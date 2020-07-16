@@ -1,4 +1,5 @@
 import csv
+import logging
 import time
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
@@ -33,6 +34,7 @@ def get_value_for_csv():
         next_path="//a[contains(@class, 'n-pager__button-next')]")
 
     for i, url in enumerate(appliances):
+        logging.info(f'{i} URL: {url}')
         # Go to detail page with description
         get_specified_page(url=url)
 
@@ -54,7 +56,7 @@ def get_value_for_csv():
             next_path=r_next)
 
         imgs = d_imgs + r_imgs
-        print(f'IMGS: {imgs}')
+        logging.info(f'IMGS: {imgs}')
 
         names = browser.find_elements_by_xpath("//span[@itemprop='name']")
         category, brand = [x.text for x in names]
@@ -71,7 +73,7 @@ def wait_if_captcha(func):
     """If the page is captcha, then it waits until the user enters captcha."""
     def modified(*args, **kwargs):
         if browser.title == "Ой!":
-            print("Captcha")
+            logging.info("Captcha")
             time.sleep(15)
 
         return func(*args, **kwargs)
@@ -86,15 +88,16 @@ def get_specified_page(xpath="", url="", domain="", t=5):
         if not url:
             elements = browser.find_elements_by_xpath(xpath)
             url = elements[0].get_attribute('href')
-            print(f'GO TO PAGE ELS: {url}')
+            logging.info(f'GO page: {url}')
 
         browser.get(urljoin(domain, url))
         time.sleep(t)
         return True
     except NoSuchElementException as e:
-        print(e)
+        logging.error(e)
         return
     except IndexError as e:
+        logging.error(e)
         return
 
 
@@ -105,7 +108,7 @@ def parse(links=[], xpath="", attr="", next_path=""):
     Return: a list of all URLs.
     """
     urls = links[:]
-    print(f'Parse {attr} to appliances')
+    logging.info(f'Parse elements with attribute: {attr}.')
 
     elements = browser.find_elements_by_xpath(xpath)
     if elements:
@@ -130,6 +133,11 @@ def main():
 
 
 if __name__ == '__main__':
+    logging.basicConfig(
+        format='%(asctime)s %(levelname)-8s %(message)s',
+        level=logging.INFO,
+        datefmt='%Y-%m-%d %H:%M:%S')
+
     SELENIUM_DRIVER_EXECUTABLE_PATH = '/usr/local/bin/geckodriver'
     DOMAIN = 'https://market.yandex.ru'
     browser = webdriver.Firefox(executable_path=SELENIUM_DRIVER_EXECUTABLE_PATH)
