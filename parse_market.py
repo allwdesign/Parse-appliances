@@ -43,6 +43,7 @@ def get_value_for_csv():
             xpath="//div[@id='ProductImageGallery']/div/meta[@itemprop='url']",
             attr="content")
 
+        # Go to reviews
         get_specified_page(
             xpath="//li[@class='_1OM4gu7kXK QjE88eF2HX']/div/a[@class='_2XmtVnQ64x']",
             domain=DOMAIN)
@@ -88,7 +89,7 @@ def get_specified_page(xpath="", url="", domain="", t=5):
         if not url:
             elements = browser.find_elements_by_xpath(xpath)
             url = elements[0].get_attribute('href')
-            logging.info(f'GO page: {url}')
+            logging.info(f'Get the page: {url}')
 
         browser.get(urljoin(domain, url))
         time.sleep(t)
